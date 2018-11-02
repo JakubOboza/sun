@@ -47,11 +47,11 @@ type FanControl struct {
 func (fc *FanControl) Perform() {
 	currentCpuTemp, _ := vcgencmd.MeasureTemp()
 	if currentCpuTemp > fc.hotTemp {
-		fmt.Printf("Need to chill %v", currentCpuTemp)
+		fmt.Printf("Need to chill %v\n", currentCpuTemp)
 		fc.fan.TurnOn()
 	}
 	if currentCpuTemp < fc.coolTemp {
-		fmt.Printf("Everything is fine %v", currentCpuTemp)
+		fmt.Printf("Everything is fine %v\n", currentCpuTemp)
 		fc.fan.TurnOff()
 	}
 }
@@ -61,16 +61,16 @@ func (fc *FanControl) StartAt() time.Time {
 }
 
 func (fc *FanControl) Interval() time.Duration {
-	return 5 * time.Second
+	return 10 * time.Second
 }
 
 func main() {
 
 	// fmt.Printf("Hello Sun!\n")
 
-	//relay_control.Open()
-	//defer relay_control.Close()
-	//pin := relay_control.New(22)
+	relay_control.Open()
+	defer relay_control.Close()
+	pin := relay_control.New(22)
 
 	// pin.TurnOn()
 	// time.Sleep(6 * 10 * 100 * time.Millisecond)
@@ -82,13 +82,13 @@ func main() {
 
 	scheduler := pot.Make()
 
-	//fanController := &FanControl{hotTemp: 43.0, coolTemp: 40.0, startAt: time.Now()}
-	//scheduler.AddTask(fanController)
+	fanController := &FanControl{fan: pin,hotTemp: 45.0, coolTemp: 39.2, startAt: time.Now()}
+	scheduler.AddTask(fanController)
 
-	scheduler.AddTask(&PrintTask{body: "Yo!", seconds_interval: 1, startAt: time.Now()})
-	scheduler.AddTask(&PrintTask{body: "Bro Staph!!!", seconds_interval: 6, startAt: time.Now()})
-	scheduler.AddTask(&PrintTask{body: "So Booooring!", seconds_interval: 10, startAt: time.Now()})
-	scheduler.AddTask(&PrintTask{body: "Fast one bro", seconds_interval: 2, startAt: time.Now()})
+	//scheduler.AddTask(&PrintTask{body: "Yo!", seconds_interval: 1, startAt: time.Now()})
+	//scheduler.AddTask(&PrintTask{body: "Bro Staph!!!", seconds_interval: 6, startAt: time.Now()})
+	//scheduler.AddTask(&PrintTask{body: "So Booooring!", seconds_interval: 10, startAt: time.Now()})
+	//scheduler.AddTask(&PrintTask{body: "Fast one bro", seconds_interval: 2, startAt: time.Now()})
 
 	scheduler.Run()
 }
