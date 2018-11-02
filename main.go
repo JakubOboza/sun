@@ -19,24 +19,6 @@ import (
 // 	"github.com/JakubOboza/sun/vcgencmd"
 // )
 
-type PrintTask struct {
-	startAt          time.Time
-	body             string
-	seconds_interval int
-}
-
-func (pt *PrintTask) Interval() time.Duration {
-	return time.Duration(pt.seconds_interval) * time.Second
-}
-
-func (pt *PrintTask) StartAt() time.Time {
-	return pt.startAt
-}
-
-func (pt *PrintTask) Perform() {
-	fmt.Printf("%s %v\n", pt.body, time.Now())
-}
-
 type FanControl struct {
 	fan      *relay_control.Relay
 	hotTemp  float64
@@ -82,8 +64,38 @@ func main() {
 
 	scheduler := pot.Make()
 
-	fanController := &FanControl{fan: pin,hotTemp: 45.0, coolTemp: 39.2, startAt: time.Now()}
-	scheduler.AddTask(fanController)
+	//fanController := &FanControl{fan: pin,hotTemp: 45.0, coolTemp: 39.2, startAt: time.Now()}
+	//scheduler.AddTask(fanController)
+
+	// task1 := pot.MakeSimpleTaskNow(10, func() {
+	// 	fmt.Println("Yo! \t", time.Now())
+	// })
+
+	// task2 := pot.MakeSimpleTaskNow(20, func() {
+	// 	fmt.Println("Soup Man!! \t", time.Now())
+	// })
+
+	// task3 := pot.MakeSimpleTask(time.Now().Add(30*time.Second), 5, func() {
+	// 	fmt.Println("My start was delayed by 30 sec\t", time.Now())
+	// })
+
+	// scheduler.AddTask(task1)
+	// scheduler.AddTask(task2)
+	// scheduler.AddTask(task3)
+
+	fanControlTask := pot.MakeSimpleTaskNow(10, func() {
+		currentCpuTemp, _ := vcgencmd.MeasureTemp()
+		if currentCpuTemp > 45.0 {
+			fmt.Printf("Need to chill %v\n", currentCpuTemp)
+			pin.TurnOn()
+		}
+		if currentCpuTemp < 39.2 {
+			fmt.Printf("Everything is fine %v\n", currentCpuTemp)
+			pin.TurnOff()
+		}
+	})
+
+	scheduler.AddTask(fanControlTask)
 
 	//scheduler.AddTask(&PrintTask{body: "Yo!", seconds_interval: 1, startAt: time.Now()})
 	//scheduler.AddTask(&PrintTask{body: "Bro Staph!!!", seconds_interval: 6, startAt: time.Now()})

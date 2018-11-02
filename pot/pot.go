@@ -40,7 +40,7 @@ func (sc *Scheduler) next() time.Duration {
 
 	for e := sc.tasks.Front(); e != nil; e = e.Next() {
 		tw := e.Value.(*taskWrapper)
-		if tw.nextRunAt.Before(time.Now()) {
+		if tw.nextRunAt.Before(run_time) {
 			tw.task.Perform()
 			//tw.nextRunAt = time.Now().Add(tw.task.Interval())
 			tw.reschedule()
