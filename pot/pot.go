@@ -36,7 +36,7 @@ func (sc *Scheduler) AddTask(task Task) {
 func (sc *Scheduler) next() time.Duration {
 
 	run_time := time.Now()
-	min_time := run_time // max wait value to conserve the CPU
+	min_time := run_time.Add(30 * time.Second) // max wait value to conserve the CPU
 
 	for e := sc.tasks.Front(); e != nil; e = e.Next() {
 		tw := e.Value.(*taskWrapper)
