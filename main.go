@@ -64,8 +64,8 @@ func main() {
 
 	scheduler := pot.Make()
 
-	//fanController := &FanControl{fan: pin,hotTemp: 45.0, coolTemp: 39.2, startAt: time.Now()}
-	//scheduler.AddTask(fanController)
+	fanController := &FanControl{fan: pin,hotTemp: 45.0, coolTemp: 39.2, startAt: time.Now()}
+	scheduler.AddTask(fanController)
 
 	// task1 := pot.MakeSimpleTaskNow(10, func() {
 	// 	fmt.Println("Yo! \t", time.Now())
@@ -83,19 +83,12 @@ func main() {
 	// scheduler.AddTask(task2)
 	// scheduler.AddTask(task3)
 
-	fanControlTask := pot.MakeSimpleTaskNow(10, func() {
+	cpuTempTask := pot.MakeSimpleTaskNow(5, func() {
 		currentCpuTemp, _ := vcgencmd.MeasureTemp()
-		if currentCpuTemp > 45.0 {
-			fmt.Printf("Need to chill %v\n", currentCpuTemp)
-			pin.TurnOn()
-		}
-		if currentCpuTemp < 39.2 {
-			fmt.Printf("Everything is fine %v\n", currentCpuTemp)
-			pin.TurnOff()
-		}
+		fmt.Println("Cpu At: ", currentCpuTemp)
 	})
 
-	scheduler.AddTask(fanControlTask)
+	scheduler.AddTask(cpuTempTask)
 
 	//scheduler.AddTask(&PrintTask{body: "Yo!", seconds_interval: 1, startAt: time.Now()})
 	//scheduler.AddTask(&PrintTask{body: "Bro Staph!!!", seconds_interval: 6, startAt: time.Now()})
