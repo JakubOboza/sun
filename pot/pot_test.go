@@ -22,6 +22,10 @@ func (tt *testTask) StartAt() time.Time {
 	return tt.startAt
 }
 
+func (tt *testTask) Repeat() bool {
+	return true
+}
+
 func TestPot(t *testing.T) {
 
 	scheduler := Make()
@@ -93,6 +97,32 @@ func TestSimpleTask(t *testing.T) {
 
 	if done == false {
 		t.Errorf("Delayed was not triggered after time passed")
+	}
+
+}
+
+func TestSingleRunSimpleTask(t *testing.T) {
+
+	scheduler := Make()
+
+	doneTimes := 0
+
+	testTask := MakeSingleRunSimpleTask(time.Now(), 1, func() {
+		doneTimes += 1
+	})
+
+	scheduler.AddTask(testTask)
+
+	// pass time to sim normal usage
+	time.Sleep(3 * time.Second)
+
+	// run one internal iteration
+	scheduler.next()
+	scheduler.next()
+	scheduler.next()
+
+	if doneTimes != 1 {
+		t.Errorf("Task was performanced wrong amount of times, got: %v, want: %v.", doneTimes, 1)
 	}
 
 }

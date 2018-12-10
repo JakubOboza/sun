@@ -6,4 +6,5 @@ type Task interface {
 	Perform()
 	Interval() time.Duration
 	StartAt() time.Time
+	Repeat() bool
 }

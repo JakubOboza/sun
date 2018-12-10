@@ -38,16 +38,27 @@ func (sc *Scheduler) next() time.Duration {
 	run_time := time.Now()
 	min_time := run_time.Add(30 * time.Second) // max wait value to conserve the CPU
 
+	elementsToRemove := make([]*list.Element, 0)
+
 	for e := sc.tasks.Front(); e != nil; e = e.Next() {
 		tw := e.Value.(*taskWrapper)
 		if tw.nextRunAt.Before(run_time) {
 			tw.task.Perform()
 			//tw.nextRunAt = time.Now().Add(tw.task.Interval())
-			tw.reschedule()
+			if tw.task.Repeat() {
+				tw.reschedule()
+			} else {
+				elementsToRemove = append(elementsToRemove, e)
+			}
 		}
 		if min_time.After(tw.nextRunAt) {
 			min_time = tw.nextRunAt
 		}
+	}
+
+	// Clear tasks that should be removed
+	for _, elem := range elementsToRemove {
+		sc.tasks.Remove(elem)
 	}
 	// find all tasks to be run now
 	// call perform on all of them
